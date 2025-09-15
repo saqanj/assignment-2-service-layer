@@ -1,27 +1,26 @@
 package edu.trincoll.service;
 
 import edu.trincoll.model.Item;
-import edu.trincoll.repository.ItemRepository;
+import edu.trincoll.repository.QuoteRepository;
 import edu.trincoll.repository.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * TODO: AI Collaboration Summary goes here
- * 
+ *  TBD
  * TODO: Rename this class to match your domain
- * 
+ * Done ??
  * Service layer implementing business logic.
  * Extends BaseService for common CRUD operations.
  */
 @Service
-public class ItemService extends BaseService<Item, Long> {
+public class QuoteService extends BaseService<Item, Long> {
     
-    private final ItemRepository repository;
+    private final QuoteRepository repository;
     
-    public ItemService(ItemRepository repository) {
+    public QuoteService(QuoteRepository repository) {
         this.repository = repository;
     }
     

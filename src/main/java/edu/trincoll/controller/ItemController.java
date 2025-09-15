@@ -1,7 +1,7 @@
 package edu.trincoll.controller;
 
 import edu.trincoll.model.Item;
-import edu.trincoll.service.ItemService;
+import edu.trincoll.service.QuoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +20,9 @@ import java.util.Set;
 @RequestMapping("/api/items")
 public class ItemController {
     
-    private final ItemService service;
+    private final QuoteService service;
     
-    public ItemController(ItemService service) {
+    public ItemController(QuoteService service) {
         this.service = service;
     }
     
