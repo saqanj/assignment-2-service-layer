@@ -1,6 +1,6 @@
 package edu.trincoll.controller;
 
-import edu.trincoll.model.Item;
+import edu.trincoll.model.Quote;
 import edu.trincoll.service.QuoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,21 +27,21 @@ public class ItemController {
     }
     
     @GetMapping
-    public List<Item> getAllItems() {
+    public List<Quote> getAllItems() {
         return service.findAll();
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Item> getItemById(@PathVariable Long id) {
+    public ResponseEntity<Quote> getItemById(@PathVariable Long id) {
         return service.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping
-    public ResponseEntity<Item> createItem(@RequestBody Item item) {
+    public ResponseEntity<Quote> createItem(@RequestBody Quote quote) {
         try {
-            Item saved = service.save(item);
+            Quote saved = service.save(quote);
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -49,13 +49,13 @@ public class ItemController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Item> updateItem(@PathVariable Long id, @RequestBody Item item) {
+    public ResponseEntity<Quote> updateItem(@PathVariable Long id, @RequestBody Quote quote) {
         if (!service.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        item.setId(id);
+        quote.setId(id);
         try {
-            Item updated = service.save(item);
+            Quote updated = service.save(quote);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -75,17 +75,17 @@ public class ItemController {
     // Additional endpoints for collections operations
     
     @GetMapping("/status/{status}")
-    public List<Item> getItemsByStatus(@PathVariable Item.Status status) {
+    public List<Quote> getItemsByStatus(@PathVariable Quote.Status status) {
         return service.findByStatus(status);
     }
     
     @GetMapping("/category/{category}")
-    public List<Item> getItemsByCategory(@PathVariable String category) {
+    public List<Quote> getItemsByCategory(@PathVariable String category) {
         return service.findByCategory(category);
     }
     
     @GetMapping("/grouped")
-    public Map<String, List<Item>> getItemsGroupedByCategory() {
+    public Map<String, List<Quote>> getItemsGroupedByCategory() {
         return service.groupByCategory();
     }
     
@@ -95,12 +95,12 @@ public class ItemController {
     }
     
     @GetMapping("/stats/status")
-    public Map<Item.Status, Long> getStatusStatistics() {
+    public Map<Quote.Status, Long> getStatusStatistics() {
         return service.countByStatus();
     }
     
     @GetMapping("/search")
-    public List<Item> searchItems(@RequestParam String query) {
+    public List<Quote> searchItems(@RequestParam String query) {
         return service.search(query);
     }
 }

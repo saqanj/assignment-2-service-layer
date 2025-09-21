@@ -1,6 +1,6 @@
 package edu.trincoll.service;
 
-import edu.trincoll.model.Item;
+import edu.trincoll.model.Quote;
 import edu.trincoll.repository.InMemoryQuoteRepository;
 import edu.trincoll.repository.QuoteRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,10 +45,10 @@ class QuoteServiceTest {
         @Test
         @DisplayName("Should reject item without title")
         void testValidateNoTitle() {
-            Item item = new Item();
-            item.setDescription("Description");
+            Quote quote = new Quote();
+            quote.setDescription("Description");
             
-            assertThatThrownBy(() -> service.validateEntity(item))
+            assertThatThrownBy(() -> service.validateEntity(quote))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Title is required");
         }
@@ -56,9 +56,9 @@ class QuoteServiceTest {
         @Test
         @DisplayName("Should reject item with empty title")
         void testValidateEmptyTitle() {
-            Item item = new Item("   ", "Description");
+            Quote quote = new Quote("   ", "Description");
             
-            assertThatThrownBy(() -> service.validateEntity(item))
+            assertThatThrownBy(() -> service.validateEntity(quote))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Title is required");
         }
@@ -67,9 +67,9 @@ class QuoteServiceTest {
         @DisplayName("Should reject item with title too long")
         void testValidateTitleTooLong() {
             String longTitle = "a".repeat(101);
-            Item item = new Item(longTitle, "Description");
+            Quote quote = new Quote(longTitle, "Description");
             
-            assertThatThrownBy(() -> service.validateEntity(item))
+            assertThatThrownBy(() -> service.validateEntity(quote))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("cannot exceed 100 characters");
         }
@@ -77,10 +77,10 @@ class QuoteServiceTest {
         @Test
         @DisplayName("Should accept valid item")
         void testValidateValidItem() {
-            Item item = new Item("Valid Title", "Valid Description");
-            item.setCategory("Test");
+            Quote quote = new Quote("Valid Title", "Valid Description");
+            quote.setCategory("Test");
             
-            assertThatNoException().isThrownBy(() -> service.validateEntity(item));
+            assertThatNoException().isThrownBy(() -> service.validateEntity(quote));
         }
     }
     
@@ -91,9 +91,9 @@ class QuoteServiceTest {
         @Test
         @DisplayName("Should save item with validation")
         void testSave() {
-            Item item = new Item("Test Item", "Description");
+            Quote quote = new Quote("Test Item", "Description");
             
-            Item saved = service.save(item);
+            Quote saved = service.save(quote);
             
             assertThat(saved.getId()).isNotNull();
             assertThat(service.count()).isEqualTo(1);
@@ -102,9 +102,9 @@ class QuoteServiceTest {
         @Test
         @DisplayName("Should not save invalid item")
         void testSaveInvalid() {
-            Item item = new Item("", "Description");
+            Quote quote = new Quote("", "Description");
             
-            assertThatThrownBy(() -> service.save(item))
+            assertThatThrownBy(() -> service.save(quote))
                     .isInstanceOf(IllegalArgumentException.class);
             
             assertThat(service.count()).isZero();
@@ -113,17 +113,17 @@ class QuoteServiceTest {
         @Test
         @DisplayName("Should find item by ID")
         void testFindById() {
-            Item item = service.save(new Item("Test", "Desc"));
+            Quote quote = service.save(new Quote("Test", "Desc"));
             
-            assertThat(service.findById(item.getId())).isPresent();
+            assertThat(service.findById(quote.getId())).isPresent();
             assertThat(service.findById(999L)).isEmpty();
         }
         
         @Test
         @DisplayName("Should delete item by ID")
         void testDeleteById() {
-            Item item = service.save(new Item("To Delete", "Desc"));
-            Long id = item.getId();
+            Quote quote = service.save(new Quote("To Delete", "Desc"));
+            Long id = quote.getId();
             
             service.deleteById(id);
             
@@ -145,37 +145,37 @@ class QuoteServiceTest {
         
         @BeforeEach
         void setUpTestData() {
-            Item item1 = new Item("Work Task 1", "Important work");
-            item1.setCategory("Work");
-            item1.setStatus(Item.Status.ACTIVE);
-            item1.addTag("urgent");
-            item1.addTag("project-a");
+            Quote quote1 = new Quote("Work Task 1", "Important work");
+            quote1.setCategory("Work");
+            quote1.setStatus(Quote.Status.ACTIVE);
+            quote1.addTag("urgent");
+            quote1.addTag("project-a");
             
-            Item item2 = new Item("Personal Task", "Personal stuff");
-            item2.setCategory("Personal");
-            item2.setStatus(Item.Status.ACTIVE);
-            item2.addTag("home");
+            Quote quote2 = new Quote("Personal Task", "Personal stuff");
+            quote2.setCategory("Personal");
+            quote2.setStatus(Quote.Status.ACTIVE);
+            quote2.addTag("home");
             
-            Item item3 = new Item("Work Task 2", "More work");
-            item3.setCategory("Work");
-            item3.setStatus(Item.Status.INACTIVE);
-            item3.addTag("project-b");
+            Quote quote3 = new Quote("Work Task 2", "More work");
+            quote3.setCategory("Work");
+            quote3.setStatus(Quote.Status.INACTIVE);
+            quote3.addTag("project-b");
             
-            Item item4 = new Item("Archived Task", "Old task");
-            item4.setCategory("Work");
-            item4.setStatus(Item.Status.ARCHIVED);
-            item4.addTag("urgent");
+            Quote quote4 = new Quote("Archived Task", "Old task");
+            quote4.setCategory("Work");
+            quote4.setStatus(Quote.Status.ARCHIVED);
+            quote4.addTag("urgent");
             
-            service.save(item1);
-            service.save(item2);
-            service.save(item3);
-            service.save(item4);
+            service.save(quote1);
+            service.save(quote2);
+            service.save(quote3);
+            service.save(quote4);
         }
         
         @Test
         @DisplayName("Should group items by category")
         void testGroupByCategory() {
-            Map<String, List<Item>> grouped = service.groupByCategory();
+            Map<String, List<Quote>> grouped = service.groupByCategory();
             
             // This test will fail until students implement the method
             assertThat(grouped).hasSize(2);
@@ -198,39 +198,39 @@ class QuoteServiceTest {
         @Test
         @DisplayName("Should count items by status")
         void testCountByStatus() {
-            Map<Item.Status, Long> counts = service.countByStatus();
+            Map<Quote.Status, Long> counts = service.countByStatus();
             
             // This test will fail until students implement the method
             assertThat(counts).hasSize(3);
-            assertThat(counts.get(Item.Status.ACTIVE)).isEqualTo(2);
-            assertThat(counts.get(Item.Status.INACTIVE)).isEqualTo(1);
-            assertThat(counts.get(Item.Status.ARCHIVED)).isEqualTo(1);
+            assertThat(counts.get(Quote.Status.ACTIVE)).isEqualTo(2);
+            assertThat(counts.get(Quote.Status.INACTIVE)).isEqualTo(1);
+            assertThat(counts.get(Quote.Status.ARCHIVED)).isEqualTo(1);
         }
         
         @Test
         @DisplayName("Should find items with all specified tags")
         void testFindByAllTags() {
-            Item item5 = new Item("Multi-tag Task", "Has multiple tags");
-            item5.addTag("urgent");
-            item5.addTag("project-a");
-            service.save(item5);
+            Quote quote5 = new Quote("Multi-tag Task", "Has multiple tags");
+            quote5.addTag("urgent");
+            quote5.addTag("project-a");
+            service.save(quote5);
             
-            List<Item> results = service.findByAllTags(Set.of("urgent", "project-a"));
+            List<Quote> results = service.findByAllTags(Set.of("urgent", "project-a"));
             
             // This test will fail until students implement the method
             assertThat(results).hasSize(2);
-            assertThat(results).extracting(Item::getTitle)
+            assertThat(results).extracting(Quote::getTitle)
                     .containsExactlyInAnyOrder("Work Task 1", "Multi-tag Task");
         }
         
         @Test
         @DisplayName("Should find items with any of specified tags")
         void testFindByAnyTag() {
-            List<Item> results = service.findByAnyTag(Set.of("home", "project-b"));
+            List<Quote> results = service.findByAnyTag(Set.of("home", "project-b"));
             
             // This test will fail until students implement the method
             assertThat(results).hasSize(2);
-            assertThat(results).extracting(Item::getTitle)
+            assertThat(results).extracting(Quote::getTitle)
                     .containsExactlyInAnyOrder("Personal Task", "Work Task 2");
         }
         
@@ -247,11 +247,11 @@ class QuoteServiceTest {
         @Test
         @DisplayName("Should search items by query")
         void testSearch() {
-            List<Item> results = service.search("work");
+            List<Quote> results = service.search("work");
             
             // This test will fail until students implement the method
             assertThat(results).hasSize(3);
-            assertThat(results).extracting(Item::getTitle)
+            assertThat(results).extracting(Quote::getTitle)
                     .contains("Work Task 1", "Work Task 2");
         }
         
@@ -263,11 +263,11 @@ class QuoteServiceTest {
             // This test will fail until students implement the method
             assertThat(archived).isEqualTo(1);
             
-            List<Item> inactiveItems = service.findByStatus(Item.Status.INACTIVE);
-            assertThat(inactiveItems).isEmpty();
+            List<Quote> inactiveQuotes = service.findByStatus(Quote.Status.INACTIVE);
+            assertThat(inactiveQuotes).isEmpty();
             
-            List<Item> archivedItems = service.findByStatus(Item.Status.ARCHIVED);
-            assertThat(archivedItems).hasSize(2);
+            List<Quote> archivedQuotes = service.findByStatus(Quote.Status.ARCHIVED);
+            assertThat(archivedQuotes).hasSize(2);
         }
     }
 }

@@ -37,7 +37,7 @@ The application follows a three-layer architecture:
 - **ItemService**: Concrete implementation with business logic and collection operations
 
 #### 3. Controller Layer
-- **ItemController**: RESTful endpoints for item management
+- **ItemController**: RESTful endpoints for quote management
 
 #### 4. Model
 - **Item Entity**: Domain model with id, name, and category fields
@@ -45,7 +45,7 @@ The application follows a three-layer architecture:
 ## Features
 
 ### Core Functionality
-- ✅ Full CRUD operations for items
+- ✅ Full CRUD operations for quotes
 - ✅ Category-based filtering
 - ✅ Name-based search with case-insensitive matching
 - ✅ Collection operations (grouping, unique categories)
@@ -53,9 +53,9 @@ The application follows a three-layer architecture:
 - ✅ Input validation
 
 ### Collection Operations Demonstrated
-- **Map**: Group items by category
+- **Map**: Group quotes by category
 - **Set**: Extract unique categories
-- **List**: Maintain ordered item collections
+- **List**: Maintain ordered quote collections
 - **Stream API**: Filter, map, and collect operations
 - **Defensive Copying**: Protect internal state
 
@@ -63,15 +63,15 @@ The application follows a three-layer architecture:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/items` | Get all items |
-| GET | `/api/items/{id}` | Get item by ID |
-| GET | `/api/items/category/{category}` | Get items by category |
-| GET | `/api/items/search?name={name}` | Search items by name |
-| GET | `/api/items/categories` | Get all unique categories |
-| GET | `/api/items/grouped` | Get items grouped by category |
-| POST | `/api/items` | Create new item |
-| PUT | `/api/items/{id}` | Update existing item |
-| DELETE | `/api/items/{id}` | Delete item |
+| GET | `/api/quotes` | Get all quotes |
+| GET | `/api/quotes/{id}` | Get quote by ID |
+| GET | `/api/quotes/category/{category}` | Get quotes by category |
+| GET | `/api/quotes/search?name={name}` | Search quotes by name |
+| GET | `/api/quotes/categories` | Get all unique categories |
+| GET | `/api/quotes/grouped` | Get quotes grouped by category |
+| POST | `/api/quotes` | Create new quote |
+| PUT | `/api/quotes/{id}` | Update existing quote |
+| DELETE | `/api/quotes/{id}` | Delete quote |
 
 ## Testing
 
@@ -197,21 +197,21 @@ The application will start on `http://localhost:8080`
 
 ### Testing the API
 
-Create an item:
+Create an quote:
 ```bash
-curl -X POST http://localhost:8080/api/items \
+curl -X POST http://localhost:8080/api/quotes \
   -H "Content-Type: application/json" \
   -d '{"name":"Sample Item","category":"Electronics"}'
 ```
 
-Get all items:
+Get all quotes:
 ```bash
-curl http://localhost:8080/api/items
+curl http://localhost:8080/api/quotes
 ```
 
 Search by category:
 ```bash
-curl http://localhost:8080/api/items/category/Electronics
+curl http://localhost:8080/api/quotes/category/Electronics
 ```
 
 ## Project Structure

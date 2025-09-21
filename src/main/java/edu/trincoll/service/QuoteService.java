@@ -1,11 +1,13 @@
 package edu.trincoll.service;
 
-import edu.trincoll.model.Item;
+import edu.trincoll.model.Quote;
 import edu.trincoll.repository.QuoteRepository;
 import edu.trincoll.repository.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * TODO: AI Collaboration Summary goes here
@@ -16,7 +18,7 @@ import java.util.*;
  * Extends BaseService for common CRUD operations.
  */
 @Service
-public class QuoteService extends BaseService<Item, Long> {
+public class QuoteService extends BaseService<Quote, Long> {
     
     private final QuoteRepository repository;
     
@@ -25,35 +27,122 @@ public class QuoteService extends BaseService<Item, Long> {
     }
     
     @Override
-    protected Repository<Item, Long> getRepository() {
+    protected Repository<Quote, Long> getRepository() {
         return repository;
     }
     
     @Override
-    public void validateEntity(Item entity) {
+    public void validateEntity(Quote entity) {
         if (entity == null) {
-            throw new IllegalArgumentException("Item cannot be null");
+            throw new IllegalArgumentException("Quote cannot be null");
         }
+
+        // ----------------
+        // Title validation
+        // ----------------
         if (entity.getTitle() == null || entity.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Title is required");
         }
         if (entity.getTitle().length() > 100) {
             throw new IllegalArgumentException("Title cannot exceed 100 characters");
         }
-        // TODO: Add more validation rules
+
+        // ----------------
+        // Description validation
+        // ----------------
+        if (entity.getDescription() != null && entity.getDescription().length() > 1000) {
+            throw new IllegalArgumentException("Description cannot exceed 1000 characters");
+        }
+
+        // ----------------
+        // Category validation
+        // ----------------
+        if (entity.getCategory() != null && entity.getCategory().length() > 50) {
+            throw new IllegalArgumentException("Category cannot exceed 50 characters");
+        }
+
+        // ----------------
+        // Author validation
+        // ----------------
+        if (entity.getAuthor() != null && entity.getAuthor().length() > 100) {
+            throw new IllegalArgumentException("Author name cannot exceed 100 characters");
+        }
+
+        // ----------------
+        // Source validation
+        // ----------------
+        if (entity.getSource() != null && entity.getSource().length() > 200) {
+            throw new IllegalArgumentException("Source cannot exceed 200 characters");
+        }
+
+        // ----------------
+        // Publisher validation
+        // ----------------
+        if (entity.getPublisher() != null && entity.getPublisher().length() > 100) {
+            throw new IllegalArgumentException("Publisher cannot exceed 100 characters");
+        }
+
+        // ----------------
+        // Tag validation
+        // ----------------
+        if (entity.getTags() != null) {
+            if (entity.getTags().size() > 20) {
+                throw new IllegalArgumentException("A quote cannot have more than 20 tags");
+            }
+            for (String tag : entity.getTags()) {
+                if (tag == null || tag.trim().isEmpty()) {
+                    throw new IllegalArgumentException("Tags cannot be blank");
+                }
+                if (tag.length() > 30) {
+                    throw new IllegalArgumentException("Tag cannot exceed 30 characters: " + tag);
+                }
+            }
+        }
+        // ----------------
+        // Status validation
+        // ----------------
+        if (entity.getStatus() == null) {
+            throw new IllegalArgumentException("Status must not be null");
+        }
     }
-    
+
+    // ------------------------
+    // Helpers
+    // ------------------------
+    private static String norm(String s) {
+        return s == null ? "" : s.trim();
+    }
+
+    private static String lower(String s) {
+        return norm(s).toLowerCase(Locale.ROOT);
+    }
+
+    private static boolean isBlank(String s) {
+        return norm(s).isEmpty();
+    }
+
+    private static String safeCategory(Quote q) {
+        String c = q.getCategory();
+        return isBlank(c) ? "Uncategorized" : c.trim();
+    }
+
+    private static Set<String> safeTags(Quote q) {
+        Set<String> t = q.getTags();
+        return (t == null) ? Collections.emptySet() : t;
+    }
+
+
     /**
      * Find items by status
      */
-    public List<Item> findByStatus(Item.Status status) {
+    public List<Quote> findByStatus(Quote.Status status) {
         return repository.findByStatus(status);
     }
     
     /**
      * Find items by category
      */
-    public List<Item> findByCategory(String category) {
+    public List<Quote> findByCategory(String category) {
         return repository.findByCategory(category);
     }
     
@@ -61,9 +150,9 @@ public class QuoteService extends BaseService<Item, Long> {
      * Group items by category using Collectors
      * TODO: Implement using streams and Collectors.groupingBy
      */
-    public Map<String, List<Item>> groupByCategory() {
-        // TODO: Implement
-        return Collections.emptyMap();
+    public Map<String, List<Quote>> groupByCategory() {
+        return repository.findAll().stream()
+                .collect(Collectors.groupingBy(QuoteService::safeCategory));
     }
     
     /**
@@ -71,35 +160,69 @@ public class QuoteService extends BaseService<Item, Long> {
      * TODO: Implement using Set operations
      */
     public Set<String> getAllUniqueTags() {
-        // TODO: Implement
-        return Collections.emptySet();
+        return repository.findAll().stream()
+                .map(QuoteService::safeTags)
+                .flatMap(Set::stream)
+                .collect(Collectors.toCollection(TreeSet::new)); // sorted & unique
     }
     
     /**
      * Get count of items per status
      * TODO: Implement using Map and streams
      */
-    public Map<Item.Status, Long> countByStatus() {
-        // TODO: Implement
-        return Collections.emptyMap();
+    public Map<Quote.Status, Long> countByStatus() {
+        EnumMap<Quote.Status, Long> result = new EnumMap<>(Quote.Status.class);
+        // Start with 0 for each status
+        for (Quote.Status s : Quote.Status.values()) {
+            result.put(s, 0L);
+        }
+        // Count present
+        Map<Quote.Status, Long> counts = repository.findAll().stream()
+                .collect(Collectors.groupingBy(Quote::getStatus, () -> new EnumMap<>(Quote.Status.class), Collectors.counting()));
+        // Merge
+        counts.forEach((k, v) -> result.put(k, v));
+        return result;
     }
     
     /**
      * Find items with multiple tags (AND operation)
      * TODO: Implement set intersection
      */
-    public List<Item> findByAllTags(Set<String> tags) {
-        // TODO: Implement
-        return Collections.emptyList();
+    public List<Quote> findByAllTags(Set<String> tags) {
+        if (tags == null || tags.isEmpty()) return Collections.emptyList();
+        Set<String> wanted = tags.stream().filter(Objects::nonNull)
+                .map(QuoteService::lower)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+        if (wanted.isEmpty()) return Collections.emptyList();
+
+        return repository.findAll().stream()
+                .filter(q -> safeTags(q).containsAll(wanted))
+                .collect(Collectors.toList());
     }
     
     /**
      * Find items with any of the tags (OR operation)
      * TODO: Implement set union
      */
-    public List<Item> findByAnyTag(Set<String> tags) {
-        // TODO: Implement
-        return Collections.emptyList();
+    public List<Quote> findByAnyTag(Set<String> tags) {
+        if (tags == null || tags.isEmpty()) return Collections.emptyList();
+        Set<String> wanted = tags.stream().filter(Objects::nonNull)
+                .map(QuoteService::lower)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+        if (wanted.isEmpty()) return Collections.emptyList();
+
+        return repository.findAll().stream()
+                .filter(q -> {
+                    Set<String> qt = safeTags(q);
+                    // intersect non-empty?
+                    for (String w : wanted) {
+                        if (qt.contains(w)) return true;
+                    }
+                    return false;
+                })
+                .collect(Collectors.toList());
     }
     
     /**
@@ -107,25 +230,69 @@ public class QuoteService extends BaseService<Item, Long> {
      * TODO: Implement using Map for counting and sorting
      */
     public List<String> getMostPopularTags(int limit) {
-        // TODO: Implement
-        return Collections.emptyList();
+        if (limit <= 0) return Collections.emptyList();
+
+        Map<String, Long> freq = repository.findAll().stream()
+                .map(QuoteService::safeTags)
+                .flatMap(Set::stream)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        return freq.entrySet().stream()
+                .sorted(Comparator.<Map.Entry<String, Long>>comparingLong(Map.Entry::getValue).reversed()
+                        .thenComparing(Map.Entry::getKey))
+                .limit(limit)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
     
     /**
      * Search items by query (searches title and description)
      * TODO: Implement flexible search
      */
-    public List<Item> search(String query) {
-        // TODO: Implement
-        return Collections.emptyList();
+    public List<Quote> search(String query) {
+        String needle = lower(query);
+        if (needle.isEmpty()) return Collections.emptyList();
+
+        return repository.findAll().stream()
+                .filter(q -> {
+                    // strings
+                    boolean inTitle      = lower(q.getTitle()).contains(needle);
+                    boolean inDesc       = lower(q.getDescription()).contains(needle);
+                    boolean inCategory   = lower(q.getCategory()).contains(needle);
+                    boolean inAuthor     = lower(q.getAuthor()).contains(needle);
+                    boolean inSource     = lower(q.getSource()).contains(needle);
+                    boolean inPublisher  = lower(q.getPublisher()).contains(needle);
+
+                    // tags (case-insensitive substring match)
+                    boolean inTags = false;
+                    Set<String> tags = q.getTags();
+                    if (tags != null && !tags.isEmpty()) {
+                        for (String t : tags) {
+                            if (t != null && lower(t).contains(needle)) {
+                                inTags = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    return inTitle || inDesc || inCategory || inAuthor || inSource || inPublisher || inTags;
+                })
+                .collect(Collectors.toList());
     }
-    
+
+
     /**
      * Archive old items (change status to ARCHIVED)
      * TODO: Implement bulk update operation
      */
     public int archiveInactiveItems() {
-        // TODO: Implement
-        return 0;
+        List<Quote> inactive = repository.findByStatus(Quote.Status.INACTIVE);
+        int updated = 0;
+        for (Quote q : inactive) {
+            q.setStatus(Quote.Status.ARCHIVED);
+            repository.save(q);
+            updated++;
+        }
+        return updated;
     }
 }

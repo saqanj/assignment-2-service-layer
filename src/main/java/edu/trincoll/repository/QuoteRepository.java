@@ -1,6 +1,7 @@
 package edu.trincoll.repository;
 
-import edu.trincoll.model.Item;
+import edu.trincoll.model.Quote;
+
 import java.util.List;
 
 /**
@@ -10,27 +11,27 @@ import java.util.List;
  * 
  * Add domain-specific query methods that make sense for your use case.
  */
-public interface QuoteRepository extends Repository<Item, Long> {
+public interface QuoteRepository extends Repository<Quote, Long> {
     
     /**
      * Find all items with a specific status
      */
-    List<Item> findByStatus(Item.Status status);
+    List<Quote> findByStatus(Quote.Status status);
     
     /**
      * Find all items in a category
      */
-    List<Item> findByCategory(String category);
+    List<Quote> findByCategory(String category);
     
     /**
      * Find all items containing a specific tag
      */
-    List<Item> findByTag(String tag);
+    List<Quote> findByTag(String tag);
     
     /**
      * Find items with title containing search term (case-insensitive)
      */
-    List<Item> findByTitleContaining(String searchTerm);
+    List<Quote> findByTitleContaining(String searchTerm);
     
     /**
      * TODO: Add at least 3 more domain-specific query methods
@@ -41,8 +42,8 @@ public interface QuoteRepository extends Repository<Item, Long> {
      * - findOverdue() for habits
      * - findByIngredient(String ingredient) for recipes
      */
-    List<Item> findByAuthor(String author);
-    List<Item> findBySource(String source);
-    List<Item> findByPublisher(String publisher);
+    List<Quote> findByAuthor(String author);
+    List<Quote> findBySource(String source);
+    List<Quote> findByPublisher(String publisher);
 
 }

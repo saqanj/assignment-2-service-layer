@@ -1,7 +1,7 @@
 package edu.trincoll.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.trincoll.model.Item;
+import edu.trincoll.model.Quote;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-class ItemIntegrationTest {
+class QuoteIntegrationTest {
     
     @Autowired
     private MockMvc mockMvc;
@@ -36,9 +36,9 @@ class ItemIntegrationTest {
                 .andExpect(status().isOk())
                 .andDo(result -> {
                     String content = result.getResponse().getContentAsString();
-                    Item[] items = objectMapper.readValue(content, Item[].class);
-                    for (Item item : items) {
-                        mockMvc.perform(delete("/api/items/" + item.getId()));
+                    Quote[] quotes = objectMapper.readValue(content, Quote[].class);
+                    for (Quote quote : quotes) {
+                        mockMvc.perform(delete("/api/items/" + quote.getId()));
                     }
                 });
     }
@@ -46,12 +46,12 @@ class ItemIntegrationTest {
     @Test
     @DisplayName("Should create item via REST API")
     void testCreateItem() throws Exception {
-        Item item = new Item("Test Item", "Test Description");
-        item.setCategory("Test");
+        Quote quote = new Quote("Test Item", "Test Description");
+        quote.setCategory("Test");
         
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item)))
+                        .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.title").value("Test Item"))
@@ -62,11 +62,11 @@ class ItemIntegrationTest {
     @Test
     @DisplayName("Should reject invalid item creation")
     void testCreateInvalidItem() throws Exception {
-        Item item = new Item("", "Description"); // Invalid: empty title
+        Quote quote = new Quote("", "Description"); // Invalid: empty title
         
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item)))
+                        .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isBadRequest());
     }
     
@@ -74,17 +74,17 @@ class ItemIntegrationTest {
     @DisplayName("Should get all items")
     void testGetAllItems() throws Exception {
         // Create test items
-        Item item1 = new Item("Item 1", "Desc 1");
-        Item item2 = new Item("Item 2", "Desc 2");
+        Quote quote1 = new Quote("Item 1", "Desc 1");
+        Quote quote2 = new Quote("Item 2", "Desc 2");
         
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item1)))
+                        .content(objectMapper.writeValueAsString(quote1)))
                 .andExpect(status().isCreated());
         
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item2)))
+                        .content(objectMapper.writeValueAsString(quote2)))
                 .andExpect(status().isCreated());
         
         // Get all items
@@ -98,17 +98,17 @@ class ItemIntegrationTest {
     @DisplayName("Should get item by ID")
     void testGetItemById() throws Exception {
         // Create item
-        Item item = new Item("Test Item", "Test Description");
+        Quote quote = new Quote("Test Item", "Test Description");
         
         String response = mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item)))
+                        .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
         
-        Item created = objectMapper.readValue(response, Item.class);
+        Quote created = objectMapper.readValue(response, Quote.class);
         
         // Get by ID
         mockMvc.perform(get("/api/items/" + created.getId()))
@@ -128,17 +128,17 @@ class ItemIntegrationTest {
     @DisplayName("Should update item")
     void testUpdateItem() throws Exception {
         // Create item
-        Item item = new Item("Original Title", "Original Description");
+        Quote quote = new Quote("Original Title", "Original Description");
         
         String response = mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item)))
+                        .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
         
-        Item created = objectMapper.readValue(response, Item.class);
+        Quote created = objectMapper.readValue(response, Quote.class);
         
         // Update item
         created.setTitle("Updated Title");
@@ -156,17 +156,17 @@ class ItemIntegrationTest {
     @DisplayName("Should delete item")
     void testDeleteItem() throws Exception {
         // Create item
-        Item item = new Item("To Delete", "Will be deleted");
+        Quote quote = new Quote("To Delete", "Will be deleted");
         
         String response = mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item)))
+                        .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
         
-        Item created = objectMapper.readValue(response, Item.class);
+        Quote created = objectMapper.readValue(response, Quote.class);
         
         // Delete item
         mockMvc.perform(delete("/api/items/" + created.getId()))
@@ -181,11 +181,11 @@ class ItemIntegrationTest {
     @DisplayName("Should get items by status")
     void testGetItemsByStatus() throws Exception {
         // Create items with different statuses
-        Item active = new Item("Active Item", "Active");
-        active.setStatus(Item.Status.ACTIVE);
+        Quote active = new Quote("Active Item", "Active");
+        active.setStatus(Quote.Status.ACTIVE);
         
-        Item inactive = new Item("Inactive Item", "Inactive");
-        inactive.setStatus(Item.Status.INACTIVE);
+        Quote inactive = new Quote("Inactive Item", "Inactive");
+        inactive.setStatus(Quote.Status.INACTIVE);
         
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -208,13 +208,13 @@ class ItemIntegrationTest {
     @DisplayName("Should get items grouped by category")
     void testGetItemsGroupedByCategory() throws Exception {
         // Create items in different categories
-        Item work1 = new Item("Work 1", "Work item");
+        Quote work1 = new Quote("Work 1", "Work item");
         work1.setCategory("Work");
         
-        Item work2 = new Item("Work 2", "Another work item");
+        Quote work2 = new Quote("Work 2", "Another work item");
         work2.setCategory("Work");
         
-        Item personal = new Item("Personal", "Personal item");
+        Quote personal = new Quote("Personal", "Personal item");
         personal.setCategory("Personal");
         
         mockMvc.perform(post("/api/items")
@@ -241,23 +241,23 @@ class ItemIntegrationTest {
     @DisplayName("Should search items")
     void testSearchItems() throws Exception {
         // Create searchable items
-        Item item1 = new Item("Java Programming", "Learn Java");
-        Item item2 = new Item("Python Guide", "Learn Python");
-        Item item3 = new Item("JavaScript Tutorial", "Learn JS");
+        Quote quote1 = new Quote("Java Programming", "Learn Java");
+        Quote quote2 = new Quote("Python Guide", "Learn Python");
+        Quote quote3 = new Quote("JavaScript Tutorial", "Learn JS");
         
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item1)))
+                        .content(objectMapper.writeValueAsString(quote1)))
                 .andExpect(status().isCreated());
         
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item2)))
+                        .content(objectMapper.writeValueAsString(quote2)))
                 .andExpect(status().isCreated());
         
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(item3)))
+                        .content(objectMapper.writeValueAsString(quote3)))
                 .andExpect(status().isCreated());
         
         // Search (will return empty until implemented)
