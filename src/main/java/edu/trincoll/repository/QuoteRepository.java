@@ -14,22 +14,22 @@ import java.util.List;
 public interface QuoteRepository extends Repository<Quote, Long> {
     
     /**
-     * Find all items with a specific status
+     * Find all quotes with a specific status
      */
     List<Quote> findByStatus(Quote.Status status);
     
     /**
-     * Find all items in a category
+     * Find all quotes in a category
      */
     List<Quote> findByCategory(String category);
     
     /**
-     * Find all items containing a specific tag
+     * Find all quotes containing a specific tag
      */
     List<Quote> findByTag(String tag);
     
     /**
-     * Find items with title containing search term (case-insensitive)
+     * Find quotes with title containing search term (case-insensitive)
      */
     List<Quote> findByTitleContaining(String searchTerm);
     
@@ -42,8 +42,20 @@ public interface QuoteRepository extends Repository<Quote, Long> {
      * - findOverdue() for habits
      * - findByIngredient(String ingredient) for recipes
      */
+
+    /**
+     * Find quotes by a certain author
+     */
     List<Quote> findByAuthor(String author);
+
+    /**
+     * Find quotes from a specific source
+     */
     List<Quote> findBySource(String source);
+
+    /**
+     * Find quotes from a specific publisher
+     */
     List<Quote> findByPublisher(String publisher);
 
 }

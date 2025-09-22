@@ -76,14 +76,23 @@ public class InMemoryQuoteRepository implements QuoteRepository {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Removes leading and trailing whitespace if string is not null
+     */
     private static String norm(String s) {
         return s == null ? "" : s.trim();
     }
 
+    /**
+     * Returns true if string a is equal to string b ignoring case
+     */
     private static boolean equalsIgnoreCaseSafe(String a, String b) {
         return norm(a).equalsIgnoreCase(norm(b));
     }
 
+    /**
+     * Returns true if the first string contains the second string
+     */
     private static boolean containsIgnoreCase(String haystack, String needle) {
         final String h = norm(haystack).toLowerCase(Locale.ROOT);
         final String n = norm(needle).toLowerCase(Locale.ROOT);

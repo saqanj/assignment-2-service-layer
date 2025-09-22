@@ -109,23 +109,38 @@ public class QuoteService extends BaseService<Quote, Long> {
     // ------------------------
     // Helpers
     // ------------------------
+    /**
+     * Removes leading and trailing whitespace if string is not null
+     */
     private static String norm(String s) {
         return s == null ? "" : s.trim();
     }
 
+    /**
+     * Converts string to lowercase
+     */
     private static String lower(String s) {
         return norm(s).toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * Returns true if string is empty
+     */
     private static boolean isBlank(String s) {
         return norm(s).isEmpty();
     }
 
+    /**
+     * Returns a quotes category or "Uncategorized" if category is empty
+     */
     private static String safeCategory(Quote q) {
         String c = q.getCategory();
         return isBlank(c) ? "Uncategorized" : c.trim();
     }
 
+    /**
+     * Returns a quotes tags or an empty set if it has none
+     */
     private static Set<String> safeTags(Quote q) {
         Set<String> t = q.getTags();
         return (t == null) ? Collections.emptySet() : t;
