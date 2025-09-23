@@ -32,13 +32,13 @@ class QuoteIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         // Clear all items before each test
-        mockMvc.perform(get("/api/items"))
+        mockMvc.perform(get("/api/quotes"))
                 .andExpect(status().isOk())
                 .andDo(result -> {
                     String content = result.getResponse().getContentAsString();
                     Quote[] quotes = objectMapper.readValue(content, Quote[].class);
                     for (Quote quote : quotes) {
-                        mockMvc.perform(delete("/api/items/" + quote.getId()));
+                        mockMvc.perform(delete("/api/quotes/" + quote.getId()));
                     }
                 });
     }
@@ -49,7 +49,7 @@ class QuoteIntegrationTest {
         Quote quote = new Quote("Test Item", "Test Description");
         quote.setCategory("Test");
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isCreated())
@@ -64,7 +64,7 @@ class QuoteIntegrationTest {
     void testCreateInvalidItem() throws Exception {
         Quote quote = new Quote("", "Description"); // Invalid: empty title
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isBadRequest());
@@ -77,18 +77,18 @@ class QuoteIntegrationTest {
         Quote quote1 = new Quote("Item 1", "Desc 1");
         Quote quote2 = new Quote("Item 2", "Desc 2");
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote1)))
                 .andExpect(status().isCreated());
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote2)))
                 .andExpect(status().isCreated());
         
         // Get all items
-        mockMvc.perform(get("/api/items"))
+        mockMvc.perform(get("/api/quotes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[*].title", containsInAnyOrder("Item 1", "Item 2")));
@@ -100,7 +100,7 @@ class QuoteIntegrationTest {
         // Create item
         Quote quote = new Quote("Test Item", "Test Description");
         
-        String response = mockMvc.perform(post("/api/items")
+        String response = mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isCreated())
@@ -111,7 +111,7 @@ class QuoteIntegrationTest {
         Quote created = objectMapper.readValue(response, Quote.class);
         
         // Get by ID
-        mockMvc.perform(get("/api/items/" + created.getId()))
+        mockMvc.perform(get("/api/quotes/" + created.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(created.getId()))
                 .andExpect(jsonPath("$.title").value("Test Item"));
@@ -120,7 +120,7 @@ class QuoteIntegrationTest {
     @Test
     @DisplayName("Should return 404 for non-existent item")
     void testGetNonExistentItem() throws Exception {
-        mockMvc.perform(get("/api/items/999"))
+        mockMvc.perform(get("/api/quotes/999"))
                 .andExpect(status().isNotFound());
     }
     
@@ -130,7 +130,7 @@ class QuoteIntegrationTest {
         // Create item
         Quote quote = new Quote("Original Title", "Original Description");
         
-        String response = mockMvc.perform(post("/api/items")
+        String response = mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isCreated())
@@ -144,7 +144,7 @@ class QuoteIntegrationTest {
         created.setTitle("Updated Title");
         created.setDescription("Updated Description");
         
-        mockMvc.perform(put("/api/items/" + created.getId())
+        mockMvc.perform(put("/api/quotes/" + created.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(created)))
                 .andExpect(status().isOk())
@@ -158,7 +158,7 @@ class QuoteIntegrationTest {
         // Create item
         Quote quote = new Quote("To Delete", "Will be deleted");
         
-        String response = mockMvc.perform(post("/api/items")
+        String response = mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote)))
                 .andExpect(status().isCreated())
@@ -169,11 +169,11 @@ class QuoteIntegrationTest {
         Quote created = objectMapper.readValue(response, Quote.class);
         
         // Delete item
-        mockMvc.perform(delete("/api/items/" + created.getId()))
+        mockMvc.perform(delete("/api/quotes/" + created.getId()))
                 .andExpect(status().isNoContent());
         
         // Verify deleted
-        mockMvc.perform(get("/api/items/" + created.getId()))
+        mockMvc.perform(get("/api/quotes/" + created.getId()))
                 .andExpect(status().isNotFound());
     }
     
@@ -187,18 +187,18 @@ class QuoteIntegrationTest {
         Quote inactive = new Quote("Inactive Item", "Inactive");
         inactive.setStatus(Quote.Status.INACTIVE);
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(active)))
                 .andExpect(status().isCreated());
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inactive)))
                 .andExpect(status().isCreated());
         
         // Get active items
-        mockMvc.perform(get("/api/items/status/ACTIVE"))
+        mockMvc.perform(get("/api/quotes/status/ACTIVE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].title").value("Active Item"));
@@ -217,23 +217,23 @@ class QuoteIntegrationTest {
         Quote personal = new Quote("Personal", "Personal item");
         personal.setCategory("Personal");
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(work1)))
                 .andExpect(status().isCreated());
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(work2)))
                 .andExpect(status().isCreated());
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(personal)))
                 .andExpect(status().isCreated());
         
         // Get grouped items (will fail until implemented)
-        mockMvc.perform(get("/api/items/grouped"))
+        mockMvc.perform(get("/api/quotes/grouped"))
                 .andExpect(status().isOk());
     }
     
@@ -245,23 +245,23 @@ class QuoteIntegrationTest {
         Quote quote2 = new Quote("Python Guide", "Learn Python");
         Quote quote3 = new Quote("JavaScript Tutorial", "Learn JS");
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote1)))
                 .andExpect(status().isCreated());
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote2)))
                 .andExpect(status().isCreated());
         
-        mockMvc.perform(post("/api/items")
+        mockMvc.perform(post("/api/quotes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(quote3)))
                 .andExpect(status().isCreated());
         
         // Search (will return empty until implemented)
-        mockMvc.perform(get("/api/items/search")
+        mockMvc.perform(get("/api/quotes/search")
                         .param("query", "Java"))
                 .andExpect(status().isOk());
     }

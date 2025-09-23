@@ -17,29 +17,29 @@ import java.util.Set;
  * All business logic should be in the service layer.
  */
 @RestController
-@RequestMapping("/api/items")
-public class ItemController {
+@RequestMapping("/api/quotes")
+public class QuoteController {
     
     private final QuoteService service;
     
-    public ItemController(QuoteService service) {
+    public QuoteController(QuoteService service) {
         this.service = service;
     }
     
     @GetMapping
-    public List<Quote> getAllItems() {
+    public List<Quote> getAllQuotes() {
         return service.findAll();
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Quote> getItemById(@PathVariable Long id) {
+    public ResponseEntity<Quote> getQuoteById(@PathVariable Long id) {
         return service.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping
-    public ResponseEntity<Quote> createItem(@RequestBody Quote quote) {
+    public ResponseEntity<Quote> createQuote(@RequestBody Quote quote) {
         try {
             Quote saved = service.save(quote);
             return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -49,7 +49,7 @@ public class ItemController {
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Quote> updateItem(@PathVariable Long id, @RequestBody Quote quote) {
+    public ResponseEntity<Quote> updateQuote(@PathVariable Long id, @RequestBody Quote quote) {
         if (!service.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
@@ -63,7 +63,7 @@ public class ItemController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteQuote(@PathVariable Long id) {
         try {
             service.deleteById(id);
             return ResponseEntity.noContent().build();
@@ -75,17 +75,17 @@ public class ItemController {
     // Additional endpoints for collections operations
     
     @GetMapping("/status/{status}")
-    public List<Quote> getItemsByStatus(@PathVariable Quote.Status status) {
+    public List<Quote> getQuotesByStatus(@PathVariable Quote.Status status) {
         return service.findByStatus(status);
     }
     
     @GetMapping("/category/{category}")
-    public List<Quote> getItemsByCategory(@PathVariable String category) {
+    public List<Quote> getQuotesByCategory(@PathVariable String category) {
         return service.findByCategory(category);
     }
     
     @GetMapping("/grouped")
-    public Map<String, List<Quote>> getItemsGroupedByCategory() {
+    public Map<String, List<Quote>> getQuotesGroupedByCategory() {
         return service.groupByCategory();
     }
     
@@ -100,7 +100,7 @@ public class ItemController {
     }
     
     @GetMapping("/search")
-    public List<Quote> searchItems(@RequestParam String query) {
+    public List<Quote> searchQuotes(@RequestParam String query) {
         return service.search(query);
     }
 }
