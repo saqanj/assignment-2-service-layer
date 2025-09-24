@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 /**
  * TODO: AI Collaboration Summary goes here
- *  TBD
+ * No AI was used.
  * TODO: Rename this class to match your domain
  * Done ??
  * Service layer implementing business logic.
