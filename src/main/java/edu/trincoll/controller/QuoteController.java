@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO: Rename this controller to match your domain
- * 
  * REST controller - should ONLY handle HTTP concerns.
  * All business logic should be in the service layer.
  */
